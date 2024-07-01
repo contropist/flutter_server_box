@@ -1,27 +1,27 @@
 import 'package:fl_lib/fl_lib.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:toolbox/data/model/server/private_key_info.dart';
-import 'package:toolbox/data/model/server/server_private_info.dart';
-import 'package:toolbox/data/res/build_data.dart';
-import 'package:toolbox/data/res/provider.dart';
-import 'package:toolbox/data/res/store.dart';
-import 'package:toolbox/view/page/backup.dart';
-import 'package:toolbox/view/page/container.dart';
-import 'package:toolbox/view/page/home/home.dart';
-import 'package:toolbox/view/page/iperf.dart';
-import 'package:toolbox/view/page/ping.dart';
-import 'package:toolbox/view/page/private_key/edit.dart';
-import 'package:toolbox/view/page/private_key/list.dart';
-import 'package:toolbox/view/page/pve.dart';
-import 'package:toolbox/view/page/server/detail/view.dart';
-import 'package:toolbox/view/page/setting/platform/android.dart';
-import 'package:toolbox/view/page/setting/platform/ios.dart';
-import 'package:toolbox/view/page/setting/seq/srv_func_seq.dart';
-import 'package:toolbox/view/page/snippet/result.dart';
-import 'package:toolbox/view/page/ssh/page.dart';
-import 'package:toolbox/view/page/setting/seq/virt_key.dart';
-import 'package:toolbox/view/page/storage/local.dart';
+import 'package:server_box/data/model/server/private_key_info.dart';
+import 'package:server_box/data/model/server/server_private_info.dart';
+import 'package:server_box/data/res/build_data.dart';
+import 'package:server_box/data/res/provider.dart';
+import 'package:server_box/data/res/store.dart';
+import 'package:server_box/view/page/backup.dart';
+import 'package:server_box/view/page/container.dart';
+import 'package:server_box/view/page/home/home.dart';
+import 'package:server_box/view/page/iperf.dart';
+import 'package:server_box/view/page/ping.dart';
+import 'package:server_box/view/page/private_key/edit.dart';
+import 'package:server_box/view/page/private_key/list.dart';
+import 'package:server_box/view/page/pve.dart';
+import 'package:server_box/view/page/server/detail/view.dart';
+import 'package:server_box/view/page/setting/platform/android.dart';
+import 'package:server_box/view/page/setting/platform/ios.dart';
+import 'package:server_box/view/page/setting/seq/srv_func_seq.dart';
+import 'package:server_box/view/page/snippet/result.dart';
+import 'package:server_box/view/page/ssh/page.dart';
+import 'package:server_box/view/page/setting/seq/virt_key.dart';
+import 'package:server_box/view/page/storage/local.dart';
 
 import '../data/model/server/snippet.dart';
 import '../view/page/editor.dart';
@@ -102,12 +102,14 @@ class AppRoutes {
     Key? key,
     required ServerPrivateInfo spi,
     String? initCmd,
+    Snippet? initSnippet,
   }) {
     return AppRoutes(
       SSHPage(
         key: key,
         spi: spi,
         initCmd: initCmd,
+        initSnippet: initSnippet,
       ),
       'ssh_term',
     );
@@ -245,5 +247,9 @@ class AppRoutes {
 
   static AppRoutes pve({Key? key, required ServerPrivateInfo spi}) {
     return AppRoutes(PvePage(key: key, spi: spi), 'pve');
+  }
+
+  static AppRoutes kvEditor({Key? key, required Map<String, String> data}) {
+    return AppRoutes(KvEditor(key: key, data: data), 'kv_editor');
   }
 }

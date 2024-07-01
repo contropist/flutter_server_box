@@ -1,12 +1,16 @@
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:fl_lib/fl_lib.dart';
-import 'package:fl_lib/l10n/gen/lib_l10n.dart';
+import 'package:fl_lib/l10n/gen_l10n/lib_l10n.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/l10n.dart';
-import 'package:toolbox/data/res/build_data.dart';
-import 'package:toolbox/data/res/rebuild.dart';
-import 'package:toolbox/data/res/store.dart';
-import 'package:toolbox/view/page/home/home.dart';
+import 'package:server_box/core/extension/context/locale.dart';
+import 'package:server_box/data/res/build_data.dart';
+import 'package:server_box/data/res/rebuild.dart';
+import 'package:server_box/data/res/store.dart';
+import 'package:server_box/view/page/home/home.dart';
+import 'package:icons_plus/icons_plus.dart';
+
+part 'intro.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -15,8 +19,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     _setup(context);
     return ListenableBuilder(
-      listenable: RebuildNodes.app,
-      builder: (_, __) {
+      listenable: RNodes.app,
+      builder: (context, _) {
         if (!Stores.setting.useSystemPrimaryColor.fetch()) {
           UIs.colorSeed = Color(Stores.setting.primaryColor.fetch());
           return _buildApp(context);
@@ -71,35 +75,44 @@ class MyApp extends StatelessWidget {
         ...AppLocalizations.localizationsDelegates,
       ],
       supportedLocales: AppLocalizations.supportedLocales,
+      localeListResolutionCallback: LocaleUtil.resolve,
       title: BuildData.name,
       themeMode: themeMode,
       theme: light,
-      darkTheme: tMode < 3 ? dark : _getAmoledTheme(dark),
+      darkTheme: tMode < 3 ? dark : dark.toAmoled,
       home: _buildAppContent(ctx),
     );
   }
 
   Widget _buildAppContent(BuildContext ctx) {
     //if (Pros.app.isWearOS) return const WearHome();
-    return const HomePage();
+    return const _AppContent(
+      intro: _IntroPage(),
+      child: HomePage(),
+    );
+  }
+}
+
+/// It's used for init settings related to [BuildContext]
+final class _AppContent extends StatelessWidget {
+  final Widget child;
+  final Widget intro;
+
+  const _AppContent({required this.child, required this.intro});
+
+  @override
+  Widget build(BuildContext context) {
+    context.setLibL10n();
+    final appL10n = AppLocalizations.of(context);
+    if (appL10n != null) l10n = appL10n;
+
+    final showIntro = Stores.setting.showIntro.fetch();
+    if (showIntro) return intro;
+
+    return child;
   }
 }
 
 void _setup(BuildContext context) async {
   SystemUIs.setTransparentNavigationBar(context);
 }
-
-ThemeData _getAmoledTheme(ThemeData darkTheme) => darkTheme.copyWith(
-      scaffoldBackgroundColor: Colors.black,
-      dialogBackgroundColor: Colors.black,
-      drawerTheme: const DrawerThemeData(backgroundColor: Colors.black),
-      appBarTheme: const AppBarTheme(backgroundColor: Colors.black),
-      dialogTheme: const DialogTheme(backgroundColor: Colors.black),
-      bottomSheetTheme:
-          const BottomSheetThemeData(backgroundColor: Colors.black),
-      listTileTheme: const ListTileThemeData(tileColor: Colors.transparent),
-      cardTheme: const CardTheme(color: Colors.black12),
-      navigationBarTheme:
-          const NavigationBarThemeData(backgroundColor: Colors.black),
-      popupMenuTheme: const PopupMenuThemeData(color: Colors.black),
-    );

@@ -4,11 +4,13 @@ import 'package:fl_lib/fl_lib.dart';
 import 'package:flutter/material.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:provider/provider.dart';
-import 'package:toolbox/core/extension/context/locale.dart';
-import 'package:toolbox/data/model/app/shell_func.dart';
-import 'package:toolbox/data/model/server/custom.dart';
-import 'package:toolbox/data/model/server/wol_cfg.dart';
-import 'package:toolbox/data/res/provider.dart';
+import 'package:server_box/core/extension/context/locale.dart';
+import 'package:server_box/data/model/app/shell_func.dart';
+import 'package:server_box/data/model/server/custom.dart';
+import 'package:server_box/data/model/server/wol_cfg.dart';
+import 'package:server_box/data/res/provider.dart';
+import 'package:server_box/data/res/store.dart';
+import 'package:server_box/data/res/url.dart';
 
 import '../../../core/route.dart';
 import '../../../data/model/server/server_private_info.dart';
@@ -20,7 +22,7 @@ class ServerEditPage extends StatefulWidget {
   final ServerPrivateInfo? spi;
 
   @override
-  _ServerEditPageState createState() => _ServerEditPageState();
+  State<ServerEditPage> createState() => _ServerEditPageState();
 }
 
 class _ServerEditPageState extends State<ServerEditPage> {
@@ -403,15 +405,27 @@ class _ServerEditPageState extends State<ServerEditPage> {
   }
 
   List<Widget> _buildPVEs() {
+    const addr = 'https://127.0.0.1:8006';
     return [
       const Text('PVE', style: UIs.text13Grey),
       UIs.height7,
-      Input(
-        controller: _pveAddrCtrl,
-        type: TextInputType.url,
-        icon: MingCute.web_line,
-        label: l10n.addr,
-        hint: 'https://example.com:8006',
+      Autocomplete<String>(
+        optionsBuilder: (val) {
+          final v = val.text;
+          if (v.startsWith(addr.substring(0, v.length))) {
+            return [addr];
+          }
+          return [];
+        },
+        onSelected: (val) => _pveAddrCtrl.text = val,
+        fieldViewBuilder: (_, ctrl, node, __) => Input(
+          controller: ctrl,
+          type: TextInputType.url,
+          icon: MingCute.web_line,
+          node: node,
+          label: l10n.addr,
+          hint: addr,
+        ),
       ),
       ListTile(
         leading: const Padding(
@@ -634,6 +648,17 @@ class _ServerEditPageState extends State<ServerEditPage> {
       custom: custom,
       wolCfg: wol,
     );
+
+    final tipShown = Stores.history.writeScriptTipShown;
+    if (!tipShown.fetch()) {
+      final ok = await context.showRoundDialog(
+        title: l10n.attention,
+        child: SimpleMarkdown(data: l10n.beforeConnect(Urls.thisRepo)),
+        actions: Btns.oks(onTap: () => context.pop(true)),
+      );
+      if (ok != true) return;
+      tipShown.put(true);
+    }
 
     if (widget.spi == null) {
       Pros.server.addServer(spi);

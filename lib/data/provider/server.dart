@@ -5,20 +5,19 @@ import 'package:computer/computer.dart';
 import 'package:dartssh2/dartssh2.dart';
 import 'package:fl_lib/fl_lib.dart';
 import 'package:flutter/material.dart';
-import 'package:toolbox/core/extension/ssh_client.dart';
-import 'package:toolbox/core/utils/ssh_auth.dart';
-import 'package:toolbox/data/model/app/error.dart';
-import 'package:toolbox/data/model/app/shell_func.dart';
-import 'package:toolbox/data/model/server/system.dart';
-import 'package:toolbox/data/model/sftp/req.dart';
-import 'package:toolbox/data/res/provider.dart';
-import 'package:toolbox/data/res/store.dart';
+import 'package:server_box/core/extension/ssh_client.dart';
+import 'package:server_box/core/utils/ssh_auth.dart';
+import 'package:server_box/data/model/app/error.dart';
+import 'package:server_box/data/model/app/shell_func.dart';
+import 'package:server_box/data/model/server/system.dart';
+import 'package:server_box/data/model/sftp/req.dart';
+import 'package:server_box/data/res/provider.dart';
+import 'package:server_box/data/res/store.dart';
 
 import '../../core/utils/server.dart';
 import '../model/server/server.dart';
 import '../model/server/server_private_info.dart';
 import '../model/server/server_status_update_req.dart';
-import '../model/server/snippet.dart';
 import '../model/server/try_limiter.dart';
 import '../res/status.dart';
 
@@ -460,20 +459,20 @@ class ServerProvider extends ChangeNotifier {
     TryLimiter.reset(sid);
   }
 
-  Future<SnippetResult?> runSnippet(String id, Snippet snippet) async {
-    final server = _servers[id];
-    if (server == null) return null;
-    final watch = Stopwatch()..start();
-    final result = await server.client?.run(snippet.fmtWith(server.spi)).string;
-    final time = watch.elapsed;
-    watch.stop();
-    if (result == null) return null;
-    return SnippetResult(
-      dest: _servers[id]?.spi.name,
-      result: result,
-      time: time,
-    );
-  }
+  // Future<SnippetResult?> runSnippet(String id, Snippet snippet) async {
+  //   final server = _servers[id];
+  //   if (server == null) return null;
+  //   final watch = Stopwatch()..start();
+  //   final result = await server.client?.run(snippet.fmtWithArgs(server.spi)).string;
+  //   final time = watch.elapsed;
+  //   watch.stop();
+  //   if (result == null) return null;
+  //   return SnippetResult(
+  //     dest: _servers[id]?.spi.name,
+  //     result: result,
+  //     time: time,
+  //   );
+  // }
 
   // Future<List<SnippetResult?>> runSnippetsMulti(
   //   List<String> ids,

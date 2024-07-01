@@ -1,9 +1,8 @@
-import 'package:after_layout/after_layout.dart';
 import 'package:fl_lib/fl_lib.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
-import 'package:toolbox/core/extension/context/locale.dart';
-import 'package:toolbox/data/res/provider.dart';
+import 'package:server_box/core/extension/context/locale.dart';
+import 'package:server_box/data/res/provider.dart';
 
 import '../../../data/model/server/snippet.dart';
 
@@ -13,7 +12,7 @@ class SnippetEditPage extends StatefulWidget {
   final Snippet? snippet;
 
   @override
-  _SnippetEditPageState createState() => _SnippetEditPageState();
+  State<SnippetEditPage> createState() => _SnippetEditPageState();
 }
 
 class _SnippetEditPageState extends State<SnippetEditPage>
@@ -200,9 +199,13 @@ class _SnippetEditPageState extends State<SnippetEditPage>
         padding: const EdgeInsets.all(13),
         child: SimpleMarkdown(
           data: '''
-📌 ${l10n.supportFmtArgs}
+📌 ${l10n.supportFmtArgs}\n
+${Snippet.fmtArgs.keys.map((e) => '`$e`').join(', ')}\n
 
-${Snippet.fmtArgs.keys.map((e) => '`$e`').join(', ')}
+${Snippet.fmtTermKeys.keys.map((e) => '`$e+?}`').join(', ')}\n
+${l10n.forExample}: 
+- `\${ctrl+c}` (Control + C)
+- `\${ctrl+b}d` (Tmux Detach)
 ''',
           styleSheet: MarkdownStyleSheet(
             codeblockDecoration: const BoxDecoration(

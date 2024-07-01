@@ -5,8 +5,9 @@ import 'package:computer/computer.dart';
 import 'package:fl_lib/fl_lib.dart';
 import 'package:icloud_storage/icloud_storage.dart';
 import 'package:logging/logging.dart';
-import 'package:toolbox/data/model/app/backup.dart';
-import 'package:toolbox/data/model/app/sync.dart';
+import 'package:server_box/data/model/app/backup.dart';
+import 'package:server_box/data/model/app/sync.dart';
+import 'package:server_box/data/res/misc.dart';
 
 import '../../../data/model/app/error.dart';
 
@@ -198,14 +199,13 @@ abstract final class ICloud {
   }
 
   static Future<void> sync() async {
-    final result = await download(relativePath: Paths.bakName);
+    final result = await download(relativePath: Miscs.bakFileName);
     if (result != null) {
-      _logger.warning('Download backup failed: $result');
       await backup();
       return;
     }
 
-    final dlFile = await File(Paths.bakPath).readAsString();
+    final dlFile = await File(Paths.bak).readAsString();
     final dlBak = await Computer.shared.start(Backup.fromJsonString, dlFile);
     await dlBak.restore();
 
@@ -214,7 +214,7 @@ abstract final class ICloud {
 
   static Future<void> backup() async {
     await Backup.backup();
-    final uploadResult = await upload(relativePath: Paths.bakName);
+    final uploadResult = await upload(relativePath: Miscs.bakFileName);
     if (uploadResult != null) {
       _logger.warning('Upload backup failed: $uploadResult');
     } else {

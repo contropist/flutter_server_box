@@ -10,21 +10,22 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:logging/logging.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:toolbox/app.dart';
-import 'package:toolbox/core/utils/sync/icloud.dart';
-import 'package:toolbox/core/utils/sync/webdav.dart';
-import 'package:toolbox/data/model/app/menu/server_func.dart';
-import 'package:toolbox/data/model/app/net_view.dart';
-import 'package:toolbox/data/model/app/server_detail_card.dart';
-import 'package:toolbox/data/model/server/custom.dart';
-import 'package:toolbox/data/model/server/private_key_info.dart';
-import 'package:toolbox/data/model/server/server_private_info.dart';
-import 'package:toolbox/data/model/server/snippet.dart';
-import 'package:toolbox/data/model/ssh/virtual_key.dart';
-import 'package:toolbox/data/res/build_data.dart';
-import 'package:toolbox/data/res/provider.dart';
-import 'package:toolbox/data/res/store.dart';
-import 'package:toolbox/data/res/url.dart';
+import 'package:server_box/app.dart';
+import 'package:server_box/core/utils/sync/icloud.dart';
+import 'package:server_box/core/utils/sync/webdav.dart';
+import 'package:server_box/data/model/app/menu/server_func.dart';
+import 'package:server_box/data/model/app/net_view.dart';
+import 'package:server_box/data/model/app/server_detail_card.dart';
+import 'package:server_box/data/model/server/custom.dart';
+import 'package:server_box/data/model/server/private_key_info.dart';
+import 'package:server_box/data/model/server/server_private_info.dart';
+import 'package:server_box/data/model/server/snippet.dart';
+import 'package:server_box/data/model/server/wol_cfg.dart';
+import 'package:server_box/data/model/ssh/virtual_key.dart';
+import 'package:server_box/data/res/build_data.dart';
+import 'package:server_box/data/res/misc.dart';
+import 'package:server_box/data/res/provider.dart';
+import 'package:server_box/data/res/store.dart';
 
 Future<void> main() async {
   _runInZone(() async {
@@ -54,7 +55,6 @@ void _runInZone(void Function() body) {
   runZonedGuarded(
     body,
     (obj, trace) {
-      Analysis.recordException(trace);
       Loggers.root.warning(obj, null, trace);
     },
     zoneSpecification: zoneSpec,
@@ -64,11 +64,17 @@ void _runInZone(void Function() body) {
 Future<void> _initApp() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await Paths.init(BuildData.name, bakName: 'srvbox');
+  await Paths.init(BuildData.name, bakName: Miscs.bakFileName);
   await _initData();
   _setupDebug();
 
-  SystemUIs.initDesktopWindow(Stores.setting.hideTitleBar.fetch());
+  final windowSize = Stores.setting.windowSize;
+  final hideTitleBar = Stores.setting.hideTitleBar.fetch();
+  SystemUIs.initDesktopWindow(
+    hideTitleBar: hideTitleBar,
+    size: windowSize.fetch().toSize(),
+    listener: WindowSizeListener(windowSize),
+  );
   FontUtils.loadFrom(Stores.setting.fontPath.fetch());
 
   _doPlatformRelated();
@@ -86,6 +92,7 @@ Future<void> _initData() async {
   Hive.registerAdapter(NetViewTypeAdapter()); // 5
   Hive.registerAdapter(ServerFuncBtnAdapter()); // 6
   Hive.registerAdapter(ServerCustomAdapter()); // 7
+  Hive.registerAdapter(WakeOnLanCfgAdapter()); // 8
 
   await Stores.setting.init();
   await Stores.server.init();
@@ -97,6 +104,8 @@ Future<void> _initData() async {
   Pros.snippet.load();
   Pros.key.load();
   await Pros.app.init();
+
+  if (Stores.setting.betaTest.fetch()) AppUpdate.chan = AppUpdateChan.beta;
 }
 
 void _setupDebug() {
@@ -107,10 +116,6 @@ void _setupDebug() {
     if (record.error != null) print(record.error);
     if (record.stackTrace != null) print(record.stackTrace);
   });
-
-  if (Stores.setting.collectUsage.fetch()) {
-    Analysis.init(Urls.analysis, '0772e65c696709f879d87db77ae1a811259e3eb9');
-  }
 }
 
 void _doPlatformRelated() async {

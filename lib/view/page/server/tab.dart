@@ -1,18 +1,17 @@
 import 'dart:async';
 import 'dart:math' as math;
 
-import 'package:after_layout/after_layout.dart';
 import 'package:fl_lib/fl_lib.dart';
 import 'package:flutter/material.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:provider/provider.dart';
-import 'package:toolbox/core/extension/context/locale.dart';
-import 'package:toolbox/core/extension/ssh_client.dart';
-import 'package:toolbox/data/model/app/shell_func.dart';
-import 'package:toolbox/data/model/server/try_limiter.dart';
-import 'package:toolbox/data/res/provider.dart';
-import 'package:toolbox/data/res/store.dart';
-import 'package:toolbox/view/widget/percent_circle.dart';
+import 'package:server_box/core/extension/context/locale.dart';
+import 'package:server_box/core/extension/ssh_client.dart';
+import 'package:server_box/data/model/app/shell_func.dart';
+import 'package:server_box/data/model/server/try_limiter.dart';
+import 'package:server_box/data/res/provider.dart';
+import 'package:server_box/data/res/store.dart';
+import 'package:server_box/view/widget/percent_circle.dart';
 
 import '../../../core/route.dart';
 import '../../../data/model/app/net_view.dart';
@@ -25,7 +24,7 @@ class ServerPage extends StatefulWidget {
   const ServerPage({super.key});
 
   @override
-  _ServerPageState createState() => _ServerPageState();
+  State<ServerPage> createState() => _ServerPageState();
 }
 
 class _ServerPageState extends State<ServerPage>
@@ -98,7 +97,8 @@ class _ServerPageState extends State<ServerPage>
       ),
       floatingActionButton: AutoHide(
         key: _autoHideKey,
-        direction: AxisDirection.right,
+        direction: AxisDirection.down,
+        offset: 75,
         controller: _scrollController,
         child: FloatingActionButton(
           heroTag: 'addServer',

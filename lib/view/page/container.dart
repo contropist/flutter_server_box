@@ -3,13 +3,13 @@ import 'dart:async';
 import 'package:fl_lib/fl_lib.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:toolbox/core/extension/context/locale.dart';
-import 'package:toolbox/core/route.dart';
-import 'package:toolbox/data/model/app/menu/base.dart';
-import 'package:toolbox/data/model/app/menu/container.dart';
-import 'package:toolbox/data/model/container/image.dart';
-import 'package:toolbox/data/model/container/type.dart';
-import 'package:toolbox/data/res/store.dart';
+import 'package:server_box/core/extension/context/locale.dart';
+import 'package:server_box/core/route.dart';
+import 'package:server_box/data/model/app/menu/base.dart';
+import 'package:server_box/data/model/app/menu/container.dart';
+import 'package:server_box/data/model/container/image.dart';
+import 'package:server_box/data/model/container/type.dart';
+import 'package:server_box/data/res/store.dart';
 
 import '../../data/model/container/ps.dart';
 import '../../data/model/server/server_private_info.dart';
@@ -206,7 +206,10 @@ class _ContainerPageState extends State<ContainerPage> {
               ],
             ),
             Text(
-              '${item.image ?? l10n.unknown} - ${item.running ? l10n.running : l10n.stopped}',
+              '${item.image ?? l10n.unknown} - ${switch (item) {
+                final PodmanPs ps => ps.running ? l10n.running : l10n.stopped,
+                final DockerPs ps => ps.state,
+              }}',
               style: UIs.text13Grey,
             ),
             _buildPsItemStats(item),
@@ -550,13 +553,19 @@ class _ContainerPageState extends State<ContainerPage> {
       case ContainerMenu.logs:
         AppRoutes.ssh(
           spi: widget.spi,
-          initCmd: 'docker logs -f --tail 100 ${dItem.id}',
+          initCmd: '${switch (_container.type) {
+            ContainerType.podman => 'podman',
+            ContainerType.docker => 'docker',
+          }} logs -f --tail 100 ${dItem.id}',
         ).go(context);
         break;
       case ContainerMenu.terminal:
         AppRoutes.ssh(
           spi: widget.spi,
-          initCmd: 'docker exec -it ${dItem.id} sh',
+          initCmd: '${switch (_container.type) {
+            ContainerType.podman => 'podman',
+            ContainerType.docker => 'docker',
+          }} exec -it ${dItem.id} sh',
         ).go(context);
         break;
       // case DockerMenuType.stats:

@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:fl_lib/fl_lib.dart';
 import 'package:flutter/material.dart';
-import 'package:toolbox/core/extension/context/locale.dart';
-import 'package:toolbox/data/res/provider.dart';
+import 'package:server_box/core/extension/context/locale.dart';
+import 'package:server_box/data/res/provider.dart';
 
 import '../../data/model/server/ping_result.dart';
 
@@ -14,7 +14,7 @@ class PingPage extends StatefulWidget {
   const PingPage({super.key});
 
   @override
-  _PingPageState createState() => _PingPageState();
+  State<PingPage> createState() => _PingPageState();
 }
 
 class _PingPageState extends State<PingPage>
